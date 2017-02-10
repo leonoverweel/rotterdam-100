@@ -11,7 +11,16 @@ from google.appengine.api import users
 class MainPage(webapp2.RequestHandler):
     def get(self):
         template = jinja_environment.get_template('index.html')
-        self.response.out.write(template.render())
+        self.response.out.write(template.render({'login': users.create_login_url('/app')}))
+
+# Serve the app
+class AppPage(webapp2.RequestHandler):
+    def get(self):
+        template = jinja_environment.get_template('app.html')
+        self.response.out.write(template.render({
+            'user': users.get_current_user().nickname(),
+            'logout': users.create_logout_url('/')
+        }))
 
 # Jinja setup
 jinja_environment = jinja2.Environment(
@@ -21,5 +30,6 @@ jinja_environment = jinja2.Environment(
 
 # Application setup
 application = webapp2.WSGIApplication([
-    ('/', MainPage)
+    ('/', MainPage),
+    ('/app', AppPage)
 ], debug=True)
