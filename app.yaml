@@ -5,6 +5,9 @@ api_version: 1
 threadsafe: true
 
 handlers:
+- url: /css
+  static_dir: css
+  expiration: "7d"
 - url: /.*
   script: main.application
 
