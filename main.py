@@ -7,6 +7,15 @@ import json
 from google.appengine.ext import ndb
 from google.appengine.api import users
 
+# A Rotterdammer has a user ID and a number of credits
+class Rotterdammer(ndb.Model):
+    user_id = ndb.StringProperty()
+    credits = ndb.IntegerProperty()
+
+    @classmethod
+    def get_by_user(cls, user):
+        return cls.query().filter(cls.user_id == user.user_id()).get()
+
 # Main page setup
 class MainPage(webapp2.RequestHandler):
     def get(self):
@@ -17,8 +26,18 @@ class MainPage(webapp2.RequestHandler):
 class AppPage(webapp2.RequestHandler):
     def get(self):
         template = jinja_environment.get_template('app.html')
+
+        user = users.get_current_user()
+        rotterdammer = Rotterdammer.get_by_user(user)
+
+        if rotterdammer is not None:
+            credits = rotterdammer.credits
+        else:
+            credits = 0
+
         self.response.out.write(template.render({
-            'user': users.get_current_user().nickname(),
+            'user': user.email(),
+            'credits': credits,
             'logout': users.create_logout_url('/')
         }))
 
